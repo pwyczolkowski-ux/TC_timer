@@ -256,10 +256,14 @@
         }
 
         body.fullscreen-active { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; 
+            height: 100dvh; /* Użycie dvh dla lepszego wsparcia mobilnego */
             padding: 0; margin: 0; z-index: 9999; background-color: var(--bg-color);
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
+            
+            /* Zapobiega "gumkowaniu" strony na iOS */
+            touch-action: none;
         }
         
         body.fullscreen-active header,
@@ -282,9 +286,6 @@
         
         /* --- STYL BALANCED: Szerokie rozstawienie --- */
         body.fullscreen-active .time-display { 
-            /* 13vw to maksimum przy normalnym rozstawieniu znaków.
-               Daje to szerokie, czytelne liczby wypełniające ok. 95% ekranu.
-            */
             font-size: min(13vw, 55vh); 
             
             width: 100vw;
@@ -293,10 +294,9 @@
             cursor: pointer; 
             padding: 0;
             margin: 0;
-            /* Przywracamy GAP, żeby cyfry "oddychały" jak w pierwszym widoku */
             gap: 0.5vw; 
             flex-wrap: nowrap;
-            letter-spacing: normal; /* Resetujemy ścisk */
+            letter-spacing: normal; 
         }
         
         body.fullscreen-active .time-input { 
@@ -307,7 +307,6 @@
             text-align: center;
         }
         
-        /* Normalne separatory (nie wchodzą pod cyfry) */
         body.fullscreen-active .separator {
              margin: 0 0.5vw; 
              width: auto;
@@ -318,7 +317,6 @@
 
         @media (min-width: 768px) { 
             body.fullscreen-active .time-display { 
-                /* Na tabletach nadal duże, ale luźne */
                 font-size: min(14vw, 65vh); 
                 gap: 1vw;
             } 
@@ -666,8 +664,22 @@
                     document.addEventListener(evt, () => {
                         const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
                         if (!isFS) {
-                            document.body.classList.remove('fullscreen-active');
-                            if (!STATE.timer.running && !STATE.stopwatch.running) releaseWakeLock();
+                            // Jeśli system wyszedł z FS (np. ESC na PC), zdejmujemy klasę
+                            // Ale nie usuwamy jej, jeśli jesteśmy na iOS i to tylko "udawany" FS
+                            // W tej implementacji API ma pierwszeństwo.
+                            if(!document.body.classList.contains('fullscreen-active')) return;
+                            
+                            // Sprawdzamy, czy to faktycznie wyjście natywne.
+                            // Jeśli użytkownik wyszedł przez przycisk - klasa już zdjęta.
+                            // To jest zabezpieczenie dla ESC.
+                            
+                            // Uwaga: Na iOS to zdarzenie się nie odpala, więc logika opiera się na przycisku.
+                            // Na Desktopie: ESC -> event -> zdejmij klasę.
+                            
+                             if (!isFS && document.fullscreenElement === null) {
+                                 document.body.classList.remove('fullscreen-active');
+                                 if (!STATE.timer.running && !STATE.stopwatch.running) releaseWakeLock();
+                             }
                         }
                     });
                 });
@@ -700,21 +712,28 @@
             toggleFullscreen() {
                 this.vibrate();
                 const docEl = document.documentElement;
-                const isAlreadyFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+                
+                // POPRAWIONE: Sprawdzamy stan na podstawie klasy CSS (dla iOS)
+                const isFsActive = document.body.classList.contains('fullscreen-active');
 
-                if (!isAlreadyFS) {
+                if (!isFsActive) {
+                    // Wchodzimy w Fullscreen
                     try {
                         if (docEl.requestFullscreen) docEl.requestFullscreen();
                         else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
                     } catch (e) { console.log("FS API Error"); }
+                    
                     document.body.classList.add('fullscreen-active');
-                    activateWakeLock(); 
+                    activateWakeLock();
                 } else {
+                    // Wychodzimy z Fullscreen
                     try {
                         if (document.exitFullscreen) document.exitFullscreen();
                         else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
                     } catch (e) {}
+                    
                     document.body.classList.remove('fullscreen-active');
+                    if (!STATE.timer.running && !STATE.stopwatch.running) releaseWakeLock();
                 }
             },
 
