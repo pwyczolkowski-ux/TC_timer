@@ -19,7 +19,6 @@
             --btn-hover: #444444;
             --panel-bg: rgba(255, 255, 255, 0.15);
             --dropdown-bg: #1a1a1a;
-            --ring-track: rgba(255, 255, 255, 0.1);
         }
 
         body.light-mode {
@@ -29,7 +28,6 @@
             --btn-hover: #d0d0d0;
             --panel-bg: rgba(0, 0, 0, 0.05);
             --dropdown-bg: #f5f5f5;
-            --ring-track: rgba(0, 0, 0, 0.05);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -120,7 +118,7 @@
         .mode-switch {
             display: flex;
             gap: 30px;
-            margin-bottom: 3vh;
+            margin-bottom: 5vh;
             z-index: 5;
         }
 
@@ -135,54 +133,22 @@
         }
         .mode-btn.active { opacity: 1; border-bottom: 2px solid var(--text-color); }
 
-        /* --- Progress Ring (SVG) --- */
-        .timer-container {
-            position: relative;
-            display: flex; justify-content: center; align-items: center;
-            width: 75vw; height: 75vw;
-            max-width: 500px; max-height: 500px;
-            margin-bottom: 2vh;
-        }
-        
-        .progress-ring {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            transform: rotate(-90deg);
-            pointer-events: none;
-            z-index: 0;
-        }
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.35s;
-            transform-origin: 50% 50%;
-            stroke: var(--text-color);
-            opacity: 0.3;
-        }
-        .progress-ring__track {
-            stroke: var(--ring-track);
-        }
-
         /* --- Time Display --- */
         .time-display {
-            font-size: 16vw;
+            font-size: 18vw;
             font-weight: 300;
             display: flex;
             align-items: center;
             justify-content: center;
             user-select: none;
-            gap: 1vw;
+            gap: 2vw;
             transition: transform 0.1s; 
+            margin-bottom: 2vh;
             z-index: 1;
-            position: relative;
         }
 
-        @media (min-width: 768px) { 
-            .time-display { font-size: 10vw; gap: 1vw; } 
-            .timer-container { width: 50vw; height: 50vw; }
-        }
-        @media (min-width: 1400px) { 
-            .time-display { font-size: 160px; gap: 10px; } 
-        }
+        @media (min-width: 768px) { .time-display { font-size: 15vw; gap: 4vw; } }
+        @media (min-width: 1400px) { .time-display { font-size: 220px; gap: 60px; } }
 
         .time-input {
             background: transparent;
@@ -190,7 +156,7 @@
             color: inherit;
             font-family: inherit;
             font-size: inherit;
-            width: 1.8ch;
+            width: 2ch;
             text-align: center;
             padding: 0; margin: 0;
             line-height: 1;
@@ -201,10 +167,10 @@
         .time-input:focus { outline: none; background-color: var(--panel-bg); border-radius: 12px; }
 
         .separator { opacity: 0.5; transform: translateY(-8%); font-weight: 100; }
-        .danger-zone input, .danger-zone span, .danger-zone .progress-ring__circle { color: var(--danger-color); stroke: var(--danger-color); opacity: 0.8; }
+        .danger-zone input, .danger-zone span { color: var(--danger-color); }
 
         /* --- Controls --- */
-        .controls { display: flex; gap: 25px; margin-top: 2vh; align-items: center; z-index: 5; }
+        .controls { display: flex; gap: 25px; margin-top: 4vh; align-items: center; z-index: 5; }
         .btn-round {
             width: 70px; height: 70px; border-radius: 50%;
             border: 2px solid var(--text-color);
@@ -238,9 +204,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            opacity: 0.7;
+            /* opacity: 0.7; USUNIĘTE */
             margin-top: auto;
             flex-shrink: 0;
+            z-index: 100;
         }
         .footer-logo {
             height: 30px;
@@ -263,29 +230,35 @@
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
             margin: 0; z-index: 9999; background-color: var(--bg-color);
         }
+        
+        /* Ukrywanie elementów w Fullscreen - ALE NIE STOPKI */
         body.fullscreen-active header,
         body.fullscreen-active .mode-switch,
         body.fullscreen-active .quick-add-container,
         body.fullscreen-active .controls,
         body.fullscreen-active .laps-container,
-        body.fullscreen-active #btn-sw-lap,
-        body.fullscreen-active footer { display: none !important; }
+        body.fullscreen-active #btn-sw-lap { display: none !important; }
         
         body.fullscreen-active .fs-controls { display: flex; }
         body.fullscreen-active main { justify-content: center; height: 100%; padding: 0; }
         
-        /* Fullscreen Time Size Adjustment */
-        body.fullscreen-active .timer-container { width: 90vw; height: 90vw; max-width: none; max-height: none; }
-        body.fullscreen-active .time-display { font-size: 20vw; margin: 0; cursor: pointer; }
-        
-        @media (min-width: 768px) { 
-            body.fullscreen-active .timer-container { width: 80vh; height: 80vh; }
-            body.fullscreen-active .time-display { font-size: 25vh; } 
-        }
-
+        body.fullscreen-active .time-display { font-size: 28vw; margin: 0; cursor: pointer; }
         body.fullscreen-active .time-input { pointer-events: none; }
-        /* Hide ring in stopwatch mode if desired, or keep it static. Here hiding for stopwatch visual cleaniness */
-        body.fullscreen-active #view-stopwatch .progress-ring { display: none; } 
+
+        @media (min-width: 768px) { body.fullscreen-active .time-display { font-size: 25vw; } }
+        @media (min-width: 1400px) { body.fullscreen-active .time-display { font-size: 400px; } }
+
+        /* Specjalne style dla stopki w Fullscreen */
+        body.fullscreen-active footer {
+            display: flex !important;
+            position: absolute;
+            bottom: 20px;
+            bottom: max(20px, env(safe-area-inset-bottom));
+            left: 0;
+            width: 100%;
+            justify-content: center;
+            pointer-events: none; /* Żeby nie blokowało kliknięć w tło */
+        }
 
         .hidden { display: none !important; }
         
@@ -298,12 +271,11 @@
 
         @media (max-height: 500px) and (orientation: landscape) {
             header { display: none; }
-            .mode-switch { margin-bottom: 5px; }
-            .timer-container { width: 45vh; height: 45vh; margin-bottom: 0; }
-            .time-display { font-size: 15vh; margin-bottom: 5px; }
-            .controls { margin-top: 5px; }
+            .mode-switch { margin-bottom: 10px; }
+            .time-display { font-size: 12vw; margin-bottom: 5px; }
+            .controls { margin-top: 10px; }
             .quick-add-container { display: none; }
-            footer { display: none; }
+            footer { display: none; } /* Na bardzo małych ekranach w poziomie ukrywamy stopkę, żeby zmieścić czas */
         }
     </style>
 </head>
@@ -369,19 +341,12 @@
         </div>
 
         <div id="view-timer">
-            <div class="timer-container">
-                <svg class="progress-ring" width="100%" height="100%" viewBox="0 0 120 120">
-                    <circle class="progress-ring__track" stroke-width="2" fill="transparent" r="54" cx="60" cy="60" />
-                    <circle class="progress-ring__circle" id="progress-circle" stroke-width="4" fill="transparent" r="54" cx="60" cy="60" />
-                </svg>
-                
-                <div class="time-display" id="timer-display">
-                    <input type="number" inputmode="numeric" id="hh" class="time-input" value="00" placeholder="00">
-                    <span class="separator">:</span>
-                    <input type="number" inputmode="numeric" id="mm" class="time-input" value="10" placeholder="00">
-                    <span class="separator">:</span>
-                    <input type="number" inputmode="numeric" id="ss" class="time-input" value="00" placeholder="00">
-                </div>
+            <div class="time-display" id="timer-display">
+                <input type="number" inputmode="numeric" id="hh" class="time-input" value="00" placeholder="00">
+                <span class="separator">:</span>
+                <input type="number" inputmode="numeric" id="mm" class="time-input" value="10" placeholder="00">
+                <span class="separator">:</span>
+                <input type="number" inputmode="numeric" id="ss" class="time-input" value="00" placeholder="00">
             </div>
 
             <div class="quick-add-container">
@@ -401,12 +366,9 @@
         </div>
 
         <div id="view-stopwatch" class="hidden">
-            <div class="timer-container">
-                <div class="time-display" id="sw-display">
-                    00 <span class="separator">:</span> 00 <span class="separator">:</span> 00
-                </div>
+            <div class="time-display" id="sw-display">
+                00 <span class="separator">:</span> 00 <span class="separator">:</span> 00
             </div>
-            
             <div class="controls">
                 <button class="btn-round" id="sw-start" onclick="app.toggleStopwatch()">
                     <span class="material-icons-outlined">play_arrow</span>
@@ -508,17 +470,10 @@
                 alarmMenu: document.getElementById('alarm-menu'),
                 muteIcons: [document.getElementById('mute-icon'), document.getElementById('mute-icon-fs')],
                 themeIcons: [document.getElementById('theme-icon'), document.getElementById('theme-icon-fs')],
-                logo: document.getElementById('company-logo'),
-                progressCircle: document.getElementById('progress-circle')
+                logo: document.getElementById('company-logo')
             },
 
             init() {
-                // Setup Progress Ring
-                const radius = this.els.progressCircle.r.baseVal.value;
-                this.circumference = radius * 2 * Math.PI;
-                this.els.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
-                this.els.progressCircle.style.strokeDashoffset = 0;
-
                 document.getElementById('btn-alarm').addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.els.alarmMenu.classList.toggle('show');
@@ -569,7 +524,7 @@
             },
 
             handleSwipe(start, end) {
-                if (document.body.classList.contains('fullscreen-active')) return; // Disable swipe in fullscreen to prevent accidents? Or keep it? Keeping it for now.
+                if (document.body.classList.contains('fullscreen-active')) return; 
                 const threshold = 50;
                 if (end < start - threshold) {
                     // Swiped Left -> Stopwatch
@@ -634,7 +589,6 @@
                         else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
                     } catch (e) {}
                     document.body.classList.remove('fullscreen-active');
-                    // Lock logic handled by event listener
                 }
             },
 
@@ -668,13 +622,6 @@
                 const s = parseInt(this.els.inputs.s.value) || 0;
                 STATE.timer.total = h * 3600 + m * 60 + s;
                 STATE.timer.remaining = STATE.timer.total;
-                this.updateProgress(STATE.timer.remaining, STATE.timer.total);
-            },
-
-            updateProgress(remaining, total) {
-                if(total <= 0) return;
-                const offset = this.circumference - (remaining / total) * this.circumference;
-                this.els.progressCircle.style.strokeDashoffset = offset;
             },
 
             updateTimerUI(sec) {
@@ -690,17 +637,12 @@
             addTime(s) {
                 if(STATE.timer.running) {
                     STATE.timer.remaining += s;
-                    STATE.timer.total += s; // Extend total to make progress bar smoother backwards? Or Keep total fixed? 
-                    // Usually adding time extends the duration. Let's increase total so the circle doesn't jump weirdly.
-                    if (STATE.timer.remaining > STATE.timer.total) STATE.timer.total = STATE.timer.remaining;
                     this.updateTimerUI(STATE.timer.remaining);
-                    this.updateProgress(STATE.timer.remaining, STATE.timer.total);
                 } else {
                     this.syncTimer();
                     STATE.timer.total += s;
                     STATE.timer.remaining = STATE.timer.total;
                     this.updateTimerUI(STATE.timer.total);
-                    this.updateProgress(STATE.timer.total, STATE.timer.total);
                 }
             },
 
@@ -720,7 +662,6 @@
                     STATE.timer.interval = setInterval(() => {
                         STATE.timer.remaining--;
                         this.updateTimerUI(STATE.timer.remaining);
-                        this.updateProgress(STATE.timer.remaining, STATE.timer.total);
                         
                         if(STATE.timer.remaining <= 10 && STATE.timer.remaining > 0) this.els.timerDisplay.classList.add('danger-zone');
                         if(STATE.timer.remaining <= 0) {
@@ -728,7 +669,6 @@
                             STATE.timer.running = false;
                             document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
                             this.els.timerDisplay.classList.remove('danger-zone');
-                            this.updateProgress(0, STATE.timer.total);
                             this.playAlarm();
                             releaseWakeLock();
                         }
@@ -741,7 +681,6 @@
                 STATE.timer.running = false;
                 STATE.timer.remaining = 0;
                 this.updateTimerUI(0);
-                this.updateProgress(0, 100);
                 document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
                 this.els.timerDisplay.classList.remove('danger-zone');
                 releaseWakeLock();
