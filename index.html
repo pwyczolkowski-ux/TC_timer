@@ -135,20 +135,23 @@
 
         /* --- Time Display --- */
         .time-display {
+            /* Domyślny widok (nie fullscreen) */
             font-size: 18vw;
             font-weight: 300;
             display: flex;
             align-items: center;
             justify-content: center;
             user-select: none;
-            gap: 2vw;
+            gap: 1vw; /* Zmniejszony odstęp, żeby cyfry się trzymały razem */
             transition: transform 0.1s; 
             margin-bottom: 2vh;
             z-index: 1;
+            width: 100%; /* Zapewnia centrowanie */
+            padding: 0 10px; /* Mały margines bezpieczeństwa */
         }
 
-        @media (min-width: 768px) { .time-display { font-size: 15vw; gap: 4vw; } }
-        @media (min-width: 1400px) { .time-display { font-size: 220px; gap: 60px; } }
+        @media (min-width: 768px) { .time-display { font-size: 15vw; gap: 2vw; } }
+        @media (min-width: 1400px) { .time-display { font-size: 200px; gap: 30px; } }
 
         .time-input {
             background: transparent;
@@ -204,7 +207,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* opacity: 0.7; USUNIĘTE */
             margin-top: auto;
             flex-shrink: 0;
             z-index: 100;
@@ -240,13 +242,29 @@
         body.fullscreen-active #btn-sw-lap { display: none !important; }
         
         body.fullscreen-active .fs-controls { display: flex; }
-        body.fullscreen-active main { justify-content: center; height: 100%; padding: 0; }
+        body.fullscreen-active main { 
+            justify-content: center; 
+            height: 100%; 
+            padding: 0 5%; /* Dodatkowy margines boczny w kontenerze głównym */
+            width: 100%;
+        }
         
-        body.fullscreen-active .time-display { font-size: 28vw; margin: 0; cursor: pointer; }
+        /* POPRAWKA WIELKOŚCI CZCIONKI W FULLSCREEN */
+        body.fullscreen-active .time-display { 
+            /* Używamy min(), aby tekst nie wyszedł poza ekran ani w pionie, ani w poziomie */
+            font-size: min(13vw, 35vh); 
+            margin: 0; 
+            cursor: pointer; 
+            width: 100%;
+            justify-content: center;
+        }
         body.fullscreen-active .time-input { pointer-events: none; }
 
-        @media (min-width: 768px) { body.fullscreen-active .time-display { font-size: 25vw; } }
-        @media (min-width: 1400px) { body.fullscreen-active .time-display { font-size: 400px; } }
+        @media (min-width: 768px) { 
+            body.fullscreen-active .time-display { 
+                font-size: min(18vw, 40vh); 
+            } 
+        }
 
         /* Specjalne style dla stopki w Fullscreen */
         body.fullscreen-active footer {
@@ -275,7 +293,7 @@
             .time-display { font-size: 12vw; margin-bottom: 5px; }
             .controls { margin-top: 10px; }
             .quick-add-container { display: none; }
-            footer { display: none; } /* Na bardzo małych ekranach w poziomie ukrywamy stopkę, żeby zmieścić czas */
+            footer { display: none; } /* Na bardzo małych ekranach w poziomie ukrywamy stopkę */
         }
     </style>
 </head>
