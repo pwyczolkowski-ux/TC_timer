@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Timer & Stopwatch App</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Timer Pro">
+    <meta name="theme-color" content="#000000">
+
+    <title>Timer Balanced Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap" rel="stylesheet">
@@ -51,8 +57,10 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 20px;
+            padding-top: max(15px, env(safe-area-inset-top)); 
             z-index: 10;
-            height: 70px;
+            height: auto;
+            min-height: 70px;
             flex-shrink: 0;
         }
 
@@ -80,7 +88,7 @@
         /* --- Alarm Menu --- */
         .alarm-menu {
             position: absolute;
-            top: 60px; left: 10px;
+            top: 70px; left: 10px;
             background-color: var(--dropdown-bg);
             border: 1px solid var(--accent-color);
             border-radius: 12px;
@@ -133,25 +141,26 @@
         }
         .mode-btn.active { opacity: 1; border-bottom: 2px solid var(--text-color); }
 
-        /* --- Time Display --- */
+        /* --- Time Display (STANDARD) --- */
         .time-display {
-            /* Domyślny widok (nie fullscreen) */
             font-size: 18vw;
             font-weight: 300;
             display: flex;
             align-items: center;
             justify-content: center;
             user-select: none;
-            gap: 1vw; 
+            gap: 0;
             transition: transform 0.1s; 
             margin-bottom: 2vh;
             z-index: 1;
             width: 100%; 
             padding: 0 10px;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
         }
 
-        @media (min-width: 768px) { .time-display { font-size: 15vw; gap: 2vw; } }
-        @media (min-width: 1400px) { .time-display { font-size: 200px; gap: 30px; } }
+        @media (min-width: 768px) { .time-display { font-size: 15vw; } }
+        @media (min-width: 1400px) { .time-display { font-size: 200px; } }
 
         .time-input {
             background: transparent;
@@ -159,17 +168,36 @@
             color: inherit;
             font-family: inherit;
             font-size: inherit;
-            width: 2ch;
+            width: 2ch; 
             text-align: center;
             padding: 0; margin: 0;
             line-height: 1;
             -moz-appearance: textfield;
+            caret-color: var(--danger-color);
         }
         .time-input::-webkit-outer-spin-button,
         .time-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .time-input:focus { outline: none; background-color: var(--panel-bg); border-radius: 12px; }
 
-        .separator { opacity: 0.5; transform: translateY(-8%); font-weight: 100; }
+        /* --- BLINKING SEPARATOR LOGIC --- */
+        .separator { 
+            transform: translateY(-8%); 
+            font-weight: 100;
+            margin: 0 0.5vw;
+            opacity: 1;
+            transition: opacity 0.1s;
+        }
+        
+        .separator.running {
+            animation: blink-animation 1s infinite steps(2, start); 
+        }
+
+        @keyframes blink-animation {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
         .danger-zone input, .danger-zone span { color: var(--danger-color); }
 
         /* --- Controls --- */
@@ -210,6 +238,7 @@
             margin-top: auto;
             flex-shrink: 0;
             z-index: 100;
+            padding-bottom: max(15px, env(safe-area-inset-bottom)); 
         }
         .footer-logo {
             height: 30px;
@@ -218,18 +247,19 @@
             transition: opacity 0.3s;
         }
 
-        /* --- FULLSCREEN LOGIC --- */
+        /* --- FULLSCREEN LOGIC (BALANCED) --- */
         .fs-controls {
             display: none;
             position: absolute; top: 20px; right: 20px; gap: 15px; z-index: 999;
-            padding-top: env(safe-area-inset-top);
-            padding-right: env(safe-area-inset-right);
+            padding-top: max(10px, env(safe-area-inset-top));
+            padding-right: max(10px, env(safe-area-inset-right));
         }
 
         body.fullscreen-active { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-            margin: 0; z-index: 9999; background-color: var(--bg-color);
+            padding: 0; margin: 0; z-index: 9999; background-color: var(--bg-color);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
         
         body.fullscreen-active header,
@@ -241,41 +271,59 @@
         
         body.fullscreen-active .fs-controls { display: flex; }
         
-        /* POPRAWIONE KONTENERY DLA FULLSCREEN */
         body.fullscreen-active main { 
             justify-content: center; 
             align-items: center;
             height: 100%; 
             padding: 0;
             width: 100%;
-            max-width: 100vw;
             overflow: hidden;
         }
         
-        /* POPRAWKA WIELKOŚCI CZCIONKI W FULLSCREEN */
+        /* --- STYL BALANCED: Szerokie rozstawienie --- */
         body.fullscreen-active .time-display { 
-            /* Używamy min(), ale z mniejszym mnożnikiem vw, aby zagwarantować marginesy */
-            /* 11.5vw * ok. 8 znaków = ~92% szerokości ekranu (bezpiecznie na mobile) */
-            font-size: min(11.5vw, 35vh); 
+            /* 13vw to maksimum przy normalnym rozstawieniu znaków.
+               Daje to szerokie, czytelne liczby wypełniające ok. 95% ekranu.
+            */
+            font-size: min(13vw, 55vh); 
             
-            /* Wymuszamy, by kontener nigdy nie był szerszy niż 90% ekranu */
-            width: 90vw;
-            max-width: 90vw;
-            margin: 0 auto; 
-            
+            width: 100vw;
+            max-width: 100vw;
             justify-content: center;
             cursor: pointer; 
+            padding: 0;
+            margin: 0;
+            /* Przywracamy GAP, żeby cyfry "oddychały" jak w pierwszym widoku */
+            gap: 0.5vw; 
+            flex-wrap: nowrap;
+            letter-spacing: normal; /* Resetujemy ścisk */
         }
-        body.fullscreen-active .time-input { pointer-events: none; }
+        
+        body.fullscreen-active .time-input { 
+            pointer-events: none; 
+            width: 2ch; 
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+        
+        /* Normalne separatory (nie wchodzą pod cyfry) */
+        body.fullscreen-active .separator {
+             margin: 0 0.5vw; 
+             width: auto;
+             position: relative;
+             z-index: 2; 
+             transform: translateY(-8%);
+        }
 
         @media (min-width: 768px) { 
             body.fullscreen-active .time-display { 
-                /* Na desktopie jeszcze ostrożniej: 10.5vw * 8 znaków = ~84% szerokości */
-                font-size: min(10.5vw, 40vh); 
+                /* Na tabletach nadal duże, ale luźne */
+                font-size: min(14vw, 65vh); 
+                gap: 1vw;
             } 
         }
 
-        /* Specjalne style dla stopki w Fullscreen */
         body.fullscreen-active footer {
             display: flex !important;
             position: absolute;
@@ -369,11 +417,11 @@
 
         <div id="view-timer">
             <div class="time-display" id="timer-display">
-                <input type="number" inputmode="numeric" id="hh" class="time-input" value="00" placeholder="00">
-                <span class="separator">:</span>
-                <input type="number" inputmode="numeric" id="mm" class="time-input" value="10" placeholder="00">
-                <span class="separator">:</span>
-                <input type="number" inputmode="numeric" id="ss" class="time-input" value="00" placeholder="00">
+                <input type="number" inputmode="numeric" id="hh" class="time-input" value="00" placeholder="00" tabindex="1">
+                <span class="separator" id="sep1">:</span>
+                <input type="number" inputmode="numeric" id="mm" class="time-input" value="10" placeholder="00" tabindex="2">
+                <span class="separator" id="sep2">:</span>
+                <input type="number" inputmode="numeric" id="ss" class="time-input" value="00" placeholder="00" tabindex="3">
             </div>
 
             <div class="quick-add-container">
@@ -394,7 +442,11 @@
 
         <div id="view-stopwatch" class="hidden">
             <div class="time-display" id="sw-display">
-                00 <span class="separator">:</span> 00 <span class="separator">:</span> 00
+                <span id="sw-h">00</span>
+                <span class="separator">:</span>
+                <span id="sw-m">00</span>
+                <span class="separator">:</span>
+                <span id="sw-s">00</span>
             </div>
             <div class="controls">
                 <button class="btn-round" id="sw-start" onclick="app.toggleStopwatch()">
@@ -501,23 +553,63 @@
             init() {
                 document.getElementById('btn-alarm').addEventListener('click', (e) => {
                     e.stopPropagation();
+                    this.vibrate(10);
                     this.els.alarmMenu.classList.toggle('show');
                 });
                 document.addEventListener('click', (e) => {
                     if(!this.els.alarmMenu.contains(e.target)) this.els.alarmMenu.classList.remove('show');
                 });
 
-                Object.values(this.els.inputs).forEach(inp => {
-                    inp.addEventListener('change', () => this.syncTimer());
-                    inp.addEventListener('input', () => { if(inp.value.length > 2) inp.value = inp.value.slice(0,2); });
-                    inp.addEventListener('focus', () => { if(STATE.timer.running) this.toggleTimer(); });
+                // --- SMART INPUT LOGIC ---
+                const inputsArr = [this.els.inputs.h, this.els.inputs.m, this.els.inputs.s];
+                
+                inputsArr.forEach((inp, index) => {
+                    inp.addEventListener('input', (e) => {
+                        this.vibrate(5);
+                        let val = parseInt(inp.value);
+                        if (isNaN(val)) return;
+
+                        if (val > 59 && index > 0) {
+                            const overflow = Math.floor(val / 60);
+                            const remainder = val % 60;
+                            inp.value = remainder.toString().padStart(2, '0');
+                            
+                            const prevInp = inputsArr[index - 1];
+                            const prevVal = parseInt(prevInp.value) || 0;
+                            prevInp.value = (prevVal + overflow).toString().padStart(2, '0');
+                            prevInp.focus();
+                            prevInp.select();
+                            
+                            this.syncTimer();
+                            return;
+                        }
+
+                        if(inp.value.length >= 2) {
+                             if(inp.value.length > 2) inp.value = inp.value.slice(0,2);
+                             if (index === 2) { inputsArr[1].focus(); inputsArr[1].select(); }
+                             else if (index === 1) { inputsArr[0].focus(); inputsArr[0].select(); }
+                        }
+                        this.syncTimer();
+                    });
+
+                    inp.addEventListener('focus', (e) => { 
+                        if(STATE.timer.running) this.toggleTimer(); 
+                        e.target.select();
+                    });
+                    
+                    inp.addEventListener('change', () => {
+                         const v = parseInt(inp.value) || 0;
+                         inp.value = v.toString().padStart(2, '0');
+                         this.syncTimer();
+                    });
                 });
 
                 document.body.addEventListener('keydown', (e) => {
                     if(e.code === 'Space') { e.preventDefault(); this.toggleCurrentMode(); }
                 });
 
-                this.els.timerDisplay.addEventListener('click', () => {
+                this.els.timerDisplay.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'INPUT') return;
                     if(document.body.classList.contains('fullscreen-active')) this.toggleTimer();
                 });
                 this.els.swDisplay.addEventListener('click', () => {
@@ -528,6 +620,18 @@
                 this.syncTimer();
                 this.selectSound('gong'); 
                 this.bindFullscreenEvents();
+            },
+
+            vibrate(ms = 15) {
+                if ("vibrate" in navigator) navigator.vibrate(ms);
+            },
+
+            setBlinking(active) {
+                const seps = document.querySelectorAll('.separator');
+                seps.forEach(s => {
+                    if (active) s.classList.add('running');
+                    else s.classList.remove('running');
+                });
             },
 
             bindGestures() {
@@ -570,11 +674,13 @@
             },
 
             toggleCurrentMode() {
+                this.vibrate();
                 if(STATE.mode === 'timer') this.toggleTimer();
                 else this.toggleStopwatch();
             },
 
             toggleTheme() {
+                this.vibrate();
                 STATE.theme = STATE.theme === 'dark' ? 'light' : 'dark';
                 document.body.classList.toggle('light-mode', STATE.theme === 'light');
                 const icon = STATE.theme === 'light' ? 'dark_mode' : 'light_mode';
@@ -585,12 +691,14 @@
             },
 
             toggleMute() {
+                this.vibrate();
                 STATE.muted = !STATE.muted;
                 const icon = STATE.muted ? 'volume_off' : 'volume_up';
                 this.els.muteIcons.forEach(i => i.innerText = icon);
             },
 
             toggleFullscreen() {
+                this.vibrate();
                 const docEl = document.documentElement;
                 const isAlreadyFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
 
@@ -611,6 +719,7 @@
             },
 
             setMode(mode) {
+                this.vibrate();
                 STATE.mode = mode;
                 document.getElementById('view-timer').classList.toggle('hidden', mode !== 'timer');
                 document.getElementById('view-stopwatch').classList.toggle('hidden', mode !== 'stopwatch');
@@ -619,6 +728,7 @@
             },
 
             selectSound(type) {
+                this.vibrate();
                 STATE.sound = type;
                 document.querySelectorAll('.alarm-option').forEach(el => el.classList.remove('selected'));
                 document.querySelector(`.alarm-option[data-sound="${type}"]`).classList.add('selected');
@@ -630,8 +740,14 @@
             playAlarm() {
                 if(STATE.muted) return;
                 SoundGen.play(STATE.sound);
+                this.vibrate(500);
                 const delay = STATE.sound === 'gong' ? 3500 : 2000;
-                setTimeout(() => { if(!STATE.timer.running && STATE.timer.remaining <= 0) SoundGen.play(STATE.sound); }, delay);
+                setTimeout(() => { 
+                    if(!STATE.timer.running && STATE.timer.remaining <= 0) {
+                        SoundGen.play(STATE.sound);
+                        this.vibrate(500);
+                    }
+                }, delay);
             },
 
             syncTimer() {
@@ -653,6 +769,7 @@
             },
 
             addTime(s) {
+                this.vibrate();
                 if(STATE.timer.running) {
                     STATE.timer.remaining += s;
                     this.updateTimerUI(STATE.timer.remaining);
@@ -665,28 +782,35 @@
             },
 
             toggleTimer() {
+                this.vibrate();
                 if(STATE.timer.running) {
                     clearInterval(STATE.timer.interval);
                     STATE.timer.running = false;
                     document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
                     this.els.timerDisplay.classList.remove('danger-zone');
+                    this.setBlinking(false); 
                     releaseWakeLock();
                 } else {
                     this.syncTimer();
                     if(STATE.timer.remaining <= 0) return;
                     STATE.timer.running = true;
                     document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">pause</span>';
+                    this.setBlinking(true); 
                     activateWakeLock();
                     STATE.timer.interval = setInterval(() => {
                         STATE.timer.remaining--;
                         this.updateTimerUI(STATE.timer.remaining);
                         
-                        if(STATE.timer.remaining <= 10 && STATE.timer.remaining > 0) this.els.timerDisplay.classList.add('danger-zone');
+                        if(STATE.timer.remaining <= 10 && STATE.timer.remaining > 0) {
+                            this.els.timerDisplay.classList.add('danger-zone');
+                            if(STATE.timer.remaining <= 3) this.vibrate(50);
+                        }
                         if(STATE.timer.remaining <= 0) {
                             clearInterval(STATE.timer.interval);
                             STATE.timer.running = false;
                             document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
                             this.els.timerDisplay.classList.remove('danger-zone');
+                            this.setBlinking(false); 
                             this.playAlarm();
                             releaseWakeLock();
                         }
@@ -695,12 +819,14 @@
             },
 
             resetTimer() {
+                this.vibrate();
                 clearInterval(STATE.timer.interval);
                 STATE.timer.running = false;
                 STATE.timer.remaining = 0;
                 this.updateTimerUI(0);
                 document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
                 this.els.timerDisplay.classList.remove('danger-zone');
+                this.setBlinking(false);
                 releaseWakeLock();
             },
 
@@ -709,44 +835,59 @@
                 const m = Math.floor(total/60).toString().padStart(2,'0');
                 const s = (total%60).toString().padStart(2,'0');
                 const cs = Math.floor((ms%1000)/10).toString().padStart(2,'0');
-                return `${m} <span class="separator">:</span> ${s} <span class="separator">:</span> ${cs}`;
+                return { m, s, cs };
+            },
+
+            updateSWDisplay(val) {
+                document.getElementById('sw-h').innerText = val.m;
+                document.getElementById('sw-m').innerText = val.s;
+                document.getElementById('sw-s').innerText = val.cs;
             },
 
             toggleStopwatch() {
+                this.vibrate();
                 if(STATE.stopwatch.running) {
                     clearInterval(STATE.stopwatch.interval);
                     STATE.stopwatch.running = false;
                     STATE.stopwatch.elapsed += Date.now() - STATE.stopwatch.startT;
                     document.getElementById('sw-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
+                    this.setBlinking(false);
                     releaseWakeLock();
                 } else {
                     STATE.stopwatch.startT = Date.now();
                     STATE.stopwatch.running = true;
                     document.getElementById('sw-start').innerHTML = '<span class="material-icons-outlined">pause</span>';
+                    this.setBlinking(true); 
                     activateWakeLock();
                     STATE.stopwatch.interval = setInterval(() => {
                         const diff = (Date.now() - STATE.stopwatch.startT) + STATE.stopwatch.elapsed;
-                        this.els.swDisplay.innerHTML = this.formatSW(diff);
+                        this.updateSWDisplay(this.formatSW(diff));
                     }, 30);
                 }
             },
 
             resetStopwatch() {
+                this.vibrate();
                 clearInterval(STATE.stopwatch.interval);
                 STATE.stopwatch.running = false;
                 STATE.stopwatch.elapsed = 0;
-                this.els.swDisplay.innerHTML = '00 <span class="separator">:</span> 00 <span class="separator">:</span> 00';
+                document.getElementById('sw-h').innerText = '00';
+                document.getElementById('sw-m').innerText = '00';
+                document.getElementById('sw-s').innerText = '00';
                 document.getElementById('sw-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
                 document.getElementById('laps').innerHTML = '';
+                this.setBlinking(false);
                 releaseWakeLock();
             },
 
             lap() {
+                this.vibrate();
                 if(!STATE.stopwatch.running && STATE.stopwatch.elapsed === 0) return;
                 const diff = STATE.stopwatch.running ? (Date.now() - STATE.stopwatch.startT) + STATE.stopwatch.elapsed : STATE.stopwatch.elapsed;
+                const f = this.formatSW(diff);
                 const row = document.createElement('div');
                 row.className = 'lap-row';
-                row.innerHTML = `<span>Lap ${document.getElementById('laps').children.length + 1}</span> <span>${this.formatSW(diff)}</span>`;
+                row.innerHTML = `<span>Lap ${document.getElementById('laps').children.length + 1}</span> <span>${f.m}:${f.s}:${f.cs}</span>`;
                 document.getElementById('laps').prepend(row);
             }
         };
