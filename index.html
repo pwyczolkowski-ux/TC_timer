@@ -142,12 +142,12 @@
             align-items: center;
             justify-content: center;
             user-select: none;
-            gap: 1vw; /* Zmniejszony odstęp, żeby cyfry się trzymały razem */
+            gap: 1vw; 
             transition: transform 0.1s; 
             margin-bottom: 2vh;
             z-index: 1;
-            width: 100%; /* Zapewnia centrowanie */
-            padding: 0 10px; /* Mały margines bezpieczeństwa */
+            width: 100%; 
+            padding: 0 10px;
         }
 
         @media (min-width: 768px) { .time-display { font-size: 15vw; gap: 2vw; } }
@@ -226,14 +226,12 @@
             padding-right: env(safe-area-inset-right);
         }
 
-        /* Krytyczne poprawki dla mobile fullscreen */
         body.fullscreen-active { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
             margin: 0; z-index: 9999; background-color: var(--bg-color);
         }
         
-        /* Ukrywanie elementów w Fullscreen - ALE NIE STOPKI */
         body.fullscreen-active header,
         body.fullscreen-active .mode-switch,
         body.fullscreen-active .quick-add-container,
@@ -242,27 +240,38 @@
         body.fullscreen-active #btn-sw-lap { display: none !important; }
         
         body.fullscreen-active .fs-controls { display: flex; }
+        
+        /* POPRAWIONE KONTENERY DLA FULLSCREEN */
         body.fullscreen-active main { 
             justify-content: center; 
+            align-items: center;
             height: 100%; 
-            padding: 0 5%; /* Dodatkowy margines boczny w kontenerze głównym */
+            padding: 0;
             width: 100%;
+            max-width: 100vw;
+            overflow: hidden;
         }
         
         /* POPRAWKA WIELKOŚCI CZCIONKI W FULLSCREEN */
         body.fullscreen-active .time-display { 
-            /* Używamy min(), aby tekst nie wyszedł poza ekran ani w pionie, ani w poziomie */
-            font-size: min(13vw, 35vh); 
-            margin: 0; 
-            cursor: pointer; 
-            width: 100%;
+            /* Używamy min(), ale z mniejszym mnożnikiem vw, aby zagwarantować marginesy */
+            /* 11.5vw * ok. 8 znaków = ~92% szerokości ekranu (bezpiecznie na mobile) */
+            font-size: min(11.5vw, 35vh); 
+            
+            /* Wymuszamy, by kontener nigdy nie był szerszy niż 90% ekranu */
+            width: 90vw;
+            max-width: 90vw;
+            margin: 0 auto; 
+            
             justify-content: center;
+            cursor: pointer; 
         }
         body.fullscreen-active .time-input { pointer-events: none; }
 
         @media (min-width: 768px) { 
             body.fullscreen-active .time-display { 
-                font-size: min(18vw, 40vh); 
+                /* Na desktopie jeszcze ostrożniej: 10.5vw * 8 znaków = ~84% szerokości */
+                font-size: min(10.5vw, 40vh); 
             } 
         }
 
@@ -275,7 +284,7 @@
             left: 0;
             width: 100%;
             justify-content: center;
-            pointer-events: none; /* Żeby nie blokowało kliknięć w tło */
+            pointer-events: none; 
         }
 
         .hidden { display: none !important; }
@@ -293,7 +302,7 @@
             .time-display { font-size: 12vw; margin-bottom: 5px; }
             .controls { margin-top: 10px; }
             .quick-add-container { display: none; }
-            footer { display: none; } /* Na bardzo małych ekranach w poziomie ukrywamy stopkę */
+            footer { display: none; }
         }
     </style>
 </head>
@@ -415,7 +424,6 @@
             }
         }
         function releaseWakeLock() {
-            // Only release if NOT in fullscreen. If in fullscreen, we keep it!
             if (document.body.classList.contains('fullscreen-active')) return;
             
             if (wakeLock !== null) {
@@ -423,7 +431,6 @@
             }
         }
         
-        // Re-acquire lock on visibility change (tab switch)
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible') {
                 if(STATE.timer.running || STATE.stopwatch.running || document.body.classList.contains('fullscreen-active')) {
@@ -510,7 +517,6 @@
                     if(e.code === 'Space') { e.preventDefault(); this.toggleCurrentMode(); }
                 });
 
-                // Kliknięcie w zegar w trybie FS pauzuje/startuje
                 this.els.timerDisplay.addEventListener('click', () => {
                     if(document.body.classList.contains('fullscreen-active')) this.toggleTimer();
                 });
@@ -518,9 +524,7 @@
                     if(document.body.classList.contains('fullscreen-active')) this.toggleStopwatch();
                 });
                 
-                // Swipe Gestures
                 this.bindGestures();
-
                 this.syncTimer();
                 this.selectSound('gong'); 
                 this.bindFullscreenEvents();
@@ -545,11 +549,9 @@
                 if (document.body.classList.contains('fullscreen-active')) return; 
                 const threshold = 50;
                 if (end < start - threshold) {
-                    // Swiped Left -> Stopwatch
                     this.setMode('stopwatch');
                 }
                 if (end > start + threshold) {
-                    // Swiped Right -> Timer
                     this.setMode('timer');
                 }
             },
@@ -561,7 +563,6 @@
                         const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
                         if (!isFS) {
                             document.body.classList.remove('fullscreen-active');
-                            // Release lock if nothing is running
                             if (!STATE.timer.running && !STATE.stopwatch.running) releaseWakeLock();
                         }
                     });
@@ -579,7 +580,6 @@
                 const icon = STATE.theme === 'light' ? 'dark_mode' : 'light_mode';
                 this.els.themeIcons.forEach(i => i.innerText = icon);
                 
-                // Swap Logo
                 const logoSrc = STATE.theme === 'light' ? 'RGB_TC_Color_OnLight.png' : 'RGB_TC_Color_OnDark.png';
                 this.els.logo.src = logoSrc;
             },
@@ -600,7 +600,7 @@
                         else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
                     } catch (e) { console.log("FS API Error"); }
                     document.body.classList.add('fullscreen-active');
-                    activateWakeLock(); // Force lock on FS entry
+                    activateWakeLock(); 
                 } else {
                     try {
                         if (document.exitFullscreen) document.exitFullscreen();
