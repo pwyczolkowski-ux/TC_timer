@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Timer & Stopwatch App</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,11 +37,12 @@
             color: var(--text-color);
             font-family: var(--font-main);
             height: 100vh;
-            height: 100dvh; /* Dynamic viewport height dla mobile */
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             transition: background-color 0.3s, color 0.3s;
             overflow: hidden;
+            position: relative;
         }
 
         /* --- Header --- */
@@ -125,7 +126,7 @@
             color: var(--text-color); opacity: 0.4;
             font-size: 1.1rem; cursor: pointer;
             text-transform: uppercase; letter-spacing: 2px;
-            padding-bottom: 10px; /* Większe pole dotyku */
+            padding-bottom: 10px;
             border-bottom: 2px solid transparent;
             display: flex; align-items: center; gap: 8px;
         }
@@ -133,7 +134,7 @@
 
         /* --- Time Display --- */
         .time-display {
-            font-size: 18vw; /* Nieco większe na mobile */
+            font-size: 18vw;
             font-weight: 300;
             display: flex;
             align-items: center;
@@ -144,13 +145,9 @@
             margin-bottom: 2vh;
         }
 
-        body.fullscreen-active .time-display { cursor: pointer; }
-        body.fullscreen-active .time-display:active { transform: scale(0.98); opacity: 0.8; }
-
         @media (min-width: 768px) { .time-display { font-size: 15vw; gap: 4vw; } }
         @media (min-width: 1400px) { .time-display { font-size: 220px; gap: 60px; } }
 
-        /* Inputs configuration */
         .time-input {
             background: transparent;
             border: none;
@@ -165,25 +162,13 @@
         }
         .time-input::-webkit-outer-spin-button,
         .time-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .time-input:focus {
-            outline: none;
-            background-color: var(--panel-bg);
-            border-radius: 12px;
-        }
+        .time-input:focus { outline: none; background-color: var(--panel-bg); border-radius: 12px; }
 
-        .separator { 
-            opacity: 0.5; 
-            transform: translateY(-8%); 
-            font-weight: 100;
-        }
-
+        .separator { opacity: 0.5; transform: translateY(-8%); font-weight: 100; }
         .danger-zone input, .danger-zone span { color: var(--danger-color); }
 
         /* --- Controls --- */
-        .controls {
-            display: flex; gap: 25px; margin-top: 4vh; align-items: center;
-        }
+        .controls { display: flex; gap: 25px; margin-top: 4vh; align-items: center; }
         .btn-round {
             width: 70px; height: 70px; border-radius: 50%;
             border: 2px solid var(--text-color);
@@ -191,20 +176,14 @@
             font-size: 2rem; cursor: pointer;
             display: flex; justify-content: center; align-items: center;
             transition: all 0.2s;
-            /* Lepszy dotyk na mobile */
             touch-action: manipulation;
         }
         @media (min-width: 768px) { .btn-round { width: 80px; height: 80px; } }
-        
         .btn-round:hover { background-color: var(--text-color); color: var(--bg-color); }
 
         .quick-add-container { 
-            display: flex; 
-            gap: 10px; 
-            margin-top: 2vh; 
-            flex-wrap: wrap; 
-            justify-content: center;
-            padding: 0 20px;
+            display: flex; gap: 10px; margin-top: 2vh; flex-wrap: wrap; 
+            justify-content: center; padding: 0 20px;
         }
         .btn-pill {
             padding: 12px 20px; border-radius: 30px;
@@ -212,10 +191,8 @@
             background: transparent; color: var(--text-color);
             cursor: pointer; font-size: 1rem;
             transition: background 0.2s;
-            flex-grow: 1; /* Rozciąganie na mobile */
-            max-width: 120px;
-            text-align: center;
-            touch-action: manipulation;
+            flex-grow: 1; max-width: 120px;
+            text-align: center; touch-action: manipulation;
         }
         .btn-pill:hover { background-color: var(--panel-bg); }
 
@@ -225,7 +202,11 @@
             position: absolute; top: 20px; right: 20px; gap: 15px; z-index: 999;
         }
 
-        body.fullscreen-active { padding: 0; }
+        /* Krytyczne poprawki dla mobile fullscreen */
+        body.fullscreen-active { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            padding: 0; margin: 0; z-index: 9999; background-color: var(--bg-color);
+        }
         body.fullscreen-active header,
         body.fullscreen-active .mode-switch,
         body.fullscreen-active .quick-add-container,
@@ -235,8 +216,7 @@
         
         body.fullscreen-active .fs-controls { display: flex; }
         body.fullscreen-active main { justify-content: center; height: 100%; padding: 0; }
-        body.fullscreen-active .time-display { font-size: 28vw; margin: 0; }
-
+        body.fullscreen-active .time-display { font-size: 28vw; margin: 0; cursor: pointer; }
         body.fullscreen-active .time-input { pointer-events: none; }
 
         @media (min-width: 768px) { body.fullscreen-active .time-display { font-size: 25vw; } }
@@ -245,20 +225,14 @@
         .hidden { display: none !important; }
         
         .laps-container { 
-            margin-top: 20px; 
-            height: 15vh; 
-            overflow-y: auto; 
-            width: 90%; 
-            max-width: 300px;
-            text-align: center; 
-            font-family: monospace; 
-            opacity: 0.7; 
+            margin-top: 20px; height: 15vh; overflow-y: auto; 
+            width: 90%; max-width: 300px; text-align: center; 
+            font-family: monospace; opacity: 0.7; 
         }
         .lap-row { border-bottom:1px solid #333; padding:8px 4px; display:flex; justify-content:space-between; font-size: 1.1rem; }
 
-        /* Media queries dla orientacji poziomej na smartfonach (landscape) */
         @media (max-height: 500px) and (orientation: landscape) {
-            header { display: none; } /* Ukryj header w poziomie na małym ekranie */
+            header { display: none; }
             .mode-switch { margin-bottom: 10px; }
             .time-display { font-size: 12vw; margin-bottom: 5px; }
             .controls { margin-top: 10px; }
@@ -367,52 +341,36 @@
     </main>
 
     <script>
-        // --- SCREEN WAKE LOCK (Blokada wygaszania ekranu) ---
+        // --- SCREEN WAKE LOCK ---
         let wakeLock = null;
-
         async function activateWakeLock() {
             if ('wakeLock' in navigator) {
                 try {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Ekran zablokowany przed wygaszeniem.');
-                } catch (err) {
-                    console.error('Błąd Wake Lock:', err.name, err.message);
-                }
+                } catch (err) {}
             }
         }
-
         function releaseWakeLock() {
             if (wakeLock !== null) {
-                wakeLock.release().then(() => {
-                    wakeLock = null;
-                    console.log('Blokada ekranu zwolniona.');
-                });
+                wakeLock.release().then(() => { wakeLock = null; });
             }
         }
-
-        // Re-aktywacja blokady po powrocie do zakładki (np. po minimalizacji)
         document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
-                activateWakeLock();
-            }
+            if (wakeLock !== null && document.visibilityState === 'visible') activateWakeLock();
         });
 
         // --- AUDIO ENGINE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
         function createSoftTone(freq, duration, attack=0.05, decay=1.5, vol=0.3) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const t = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            
             osc.type = 'sine'; 
             osc.frequency.setValueAtTime(freq, t);
-            
             gain.gain.setValueAtTime(0, t);
             gain.gain.linearRampToValueAtTime(vol, t + attack); 
             gain.gain.exponentialRampToValueAtTime(0.001, t + duration); 
-
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start(t);
@@ -430,9 +388,7 @@
             },
             chime() {
                 createSoftTone(659, 1.5, 0.02, 1.2, 0.25);
-                setTimeout(() => {
-                    createSoftTone(554, 2.5, 0.05, 2.0, 0.25);
-                }, 400); 
+                setTimeout(() => createSoftTone(554, 2.5, 0.05, 2.0, 0.25), 400); 
             },
             play(type) {
                 if(type === 'gong') this.gong();
@@ -461,7 +417,6 @@
             },
 
             init() {
-                // Alarm Menu Toggle
                 document.getElementById('btn-alarm').addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.els.alarmMenu.classList.toggle('show');
@@ -470,35 +425,37 @@
                     if(!this.els.alarmMenu.contains(e.target)) this.els.alarmMenu.classList.remove('show');
                 });
 
-                // Input Handling
                 Object.values(this.els.inputs).forEach(inp => {
                     inp.addEventListener('change', () => this.syncTimer());
                     inp.addEventListener('input', () => { if(inp.value.length > 2) inp.value = inp.value.slice(0,2); });
-                    // Pauza timera gdy user edytuje ręcznie
-                    inp.addEventListener('focus', () => {
-                         if(STATE.timer.running) this.toggleTimer();
-                    });
+                    inp.addEventListener('focus', () => { if(STATE.timer.running) this.toggleTimer(); });
                 });
 
-                // Klawisz SPACJA
                 document.body.addEventListener('keydown', (e) => {
-                    if(e.code === 'Space') {
-                        e.preventDefault(); 
-                        this.toggleCurrentMode();
-                    }
+                    if(e.code === 'Space') { e.preventDefault(); this.toggleCurrentMode(); }
                 });
 
-                // Touch & Click na zegar
+                // Kliknięcie w zegar w trybie FS pauzuje/startuje
                 this.els.timerDisplay.addEventListener('click', () => {
-                    if(document.fullscreenElement) this.toggleTimer();
+                    if(document.body.classList.contains('fullscreen-active')) this.toggleTimer();
                 });
-                
                 this.els.swDisplay.addEventListener('click', () => {
-                    if(document.fullscreenElement) this.toggleStopwatch();
+                    if(document.body.classList.contains('fullscreen-active')) this.toggleStopwatch();
                 });
 
                 this.syncTimer();
                 this.selectSound('gong'); 
+                this.bindFullscreenEvents();
+            },
+
+            bindFullscreenEvents() {
+                const events = ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'];
+                events.forEach(evt => {
+                    document.addEventListener(evt, () => {
+                        const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+                        if (!isFS) document.body.classList.remove('fullscreen-active');
+                    });
+                });
             },
 
             toggleCurrentMode() {
@@ -506,12 +463,10 @@
                 else this.toggleStopwatch();
             },
 
-            // --- UI ACTIONS ---
             toggleTheme() {
                 STATE.theme = STATE.theme === 'dark' ? 'light' : 'dark';
-                document.body.className = STATE.theme === 'light' ? 'light-mode' : '';
+                document.body.classList.toggle('light-mode', STATE.theme === 'light');
                 document.getElementById('theme-icon').innerText = STATE.theme === 'light' ? 'dark_mode' : 'light_mode';
-                if(document.fullscreenElement) document.body.classList.add('fullscreen-active');
             },
 
             toggleMute() {
@@ -521,11 +476,20 @@
             },
 
             toggleFullscreen() {
-                if(!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(e => console.log(e));
+                const docEl = document.documentElement;
+                const isAlreadyFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+                if (!isAlreadyFS) {
+                    try {
+                        if (docEl.requestFullscreen) docEl.requestFullscreen();
+                        else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+                    } catch (e) { console.log("FS API Error"); }
                     document.body.classList.add('fullscreen-active');
                 } else {
-                    if(document.exitFullscreen) document.exitFullscreen();
+                    try {
+                        if (document.exitFullscreen) document.exitFullscreen();
+                        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                    } catch (e) {}
                     document.body.classList.remove('fullscreen-active');
                 }
             },
@@ -534,11 +498,10 @@
                 STATE.mode = mode;
                 document.getElementById('view-timer').classList.toggle('hidden', mode !== 'timer');
                 document.getElementById('view-stopwatch').classList.toggle('hidden', mode !== 'stopwatch');
-                document.getElementById('tab-timer').className = mode === 'timer' ? 'mode-btn active' : 'mode-btn';
-                document.getElementById('tab-stopwatch').className = mode === 'stopwatch' ? 'mode-btn active' : 'mode-btn';
+                document.getElementById('tab-timer').classList.toggle('active', mode === 'timer');
+                document.getElementById('tab-stopwatch').classList.toggle('active', mode === 'stopwatch');
             },
 
-            // --- SOUNDS ---
             selectSound(type) {
                 STATE.sound = type;
                 document.querySelectorAll('.alarm-option').forEach(el => el.classList.remove('selected'));
@@ -546,18 +509,15 @@
                 if(STATE.muted) this.toggleMute();
             },
 
-            previewSound(type) {
-                SoundGen.play(type);
-            },
+            previewSound(type) { SoundGen.play(type); },
 
             playAlarm() {
                 if(STATE.muted) return;
                 SoundGen.play(STATE.sound);
                 const delay = STATE.sound === 'gong' ? 3500 : 2000;
-                setTimeout(() => SoundGen.play(STATE.sound), delay);
+                setTimeout(() => { if(!STATE.timer.running && STATE.timer.remaining <= 0) SoundGen.play(STATE.sound); }, delay);
             },
 
-            // --- TIMER LOGIC ---
             syncTimer() {
                 const h = parseInt(this.els.inputs.h.value) || 0;
                 const m = parseInt(this.els.inputs.m.value) || 0;
@@ -567,6 +527,7 @@
             },
 
             updateTimerUI(sec) {
+                if (sec < 0) sec = 0;
                 const h = Math.floor(sec / 3600);
                 const m = Math.floor((sec % 3600) / 60);
                 const s = sec % 60;
@@ -593,27 +554,24 @@
                     STATE.timer.running = false;
                     document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
                     this.els.timerDisplay.classList.remove('danger-zone');
-                    releaseWakeLock(); // Zwalniamy ekran
+                    releaseWakeLock();
                 } else {
                     this.syncTimer();
                     if(STATE.timer.remaining <= 0) return;
                     STATE.timer.running = true;
                     document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">pause</span>';
-                    activateWakeLock(); // Blokujemy ekran
-                    
+                    activateWakeLock();
                     STATE.timer.interval = setInterval(() => {
                         STATE.timer.remaining--;
                         this.updateTimerUI(STATE.timer.remaining);
-                        
                         if(STATE.timer.remaining <= 10 && STATE.timer.remaining > 0) this.els.timerDisplay.classList.add('danger-zone');
-                        
                         if(STATE.timer.remaining <= 0) {
                             clearInterval(STATE.timer.interval);
                             STATE.timer.running = false;
                             document.getElementById('t-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
                             this.els.timerDisplay.classList.remove('danger-zone');
                             this.playAlarm();
-                            releaseWakeLock(); // Zwalniamy ekran po zakończeniu
+                            releaseWakeLock();
                         }
                     }, 1000);
                 }
@@ -629,7 +587,6 @@
                 releaseWakeLock();
             },
 
-            // --- STOPWATCH LOGIC ---
             formatSW(ms) {
                 const total = Math.floor(ms/1000);
                 const m = Math.floor(total/60).toString().padStart(2,'0');
@@ -644,13 +601,12 @@
                     STATE.stopwatch.running = false;
                     STATE.stopwatch.elapsed += Date.now() - STATE.stopwatch.startT;
                     document.getElementById('sw-start').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
-                    releaseWakeLock(); // Zwalniamy ekran
+                    releaseWakeLock();
                 } else {
                     STATE.stopwatch.startT = Date.now();
                     STATE.stopwatch.running = true;
                     document.getElementById('sw-start').innerHTML = '<span class="material-icons-outlined">pause</span>';
-                    activateWakeLock(); // Blokujemy ekran
-                    
+                    activateWakeLock();
                     STATE.stopwatch.interval = setInterval(() => {
                         const diff = (Date.now() - STATE.stopwatch.startT) + STATE.stopwatch.elapsed;
                         this.els.swDisplay.innerHTML = this.formatSW(diff);
@@ -677,10 +633,6 @@
                 document.getElementById('laps').prepend(row);
             }
         };
-
-        document.addEventListener('fullscreenchange', () => {
-            if(!document.fullscreenElement) document.body.classList.remove('fullscreen-active');
-        });
 
         app.init();
     </script>
